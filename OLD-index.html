@@ -7,21 +7,31 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f8f7f4; --surface: #ffffff; --surface2: #f1f0ec;
-    --border: #e2e0d9; --border2: #ccc9be;
-    --text: #1a1a18; --text2: #6b6960; --text3: #9c9a91;
-    --green: #3b6d11; --green-bg: #eaf3de;
-    --red: #a32d2d; --red-bg: #fcebeb;
-    --radius: 10px; --radius-sm: 6px;
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f1f0ec;
+    --border: #e2e0d9;
+    --border2: #ccc9be;
+    --text: #1a1a18;
+    --text2: #6b6960;
+    --text3: #9c9a91;
+    --green: #3b6d11;
+    --green-bg: #eaf3de;
+    --red: #a32d2d;
+    --red-bg: #fcebeb;
+    --blue: #185fa5;
+    --blue-bg: #e6f1fb;
+    --amber: #854f0b;
+    --amber-bg: #faeeda;
+    --radius: 10px;
+    --radius-sm: 6px;
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
   .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .topbar-logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
   .topbar-logo span { color: var(--text2); font-weight: 400; }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
-  .project-selector { display: flex; align-items: center; gap: 8px; }
-  .project-selector select { font-size: 13px; font-weight: 600; padding: 5px 10px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-family: inherit; cursor: pointer; max-width: 220px; }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .topbar-right { font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
   .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; overflow-x: auto; }
   .nav-btn { font-size: 13px; padding: 13px 16px; border: none; background: none; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: inherit; transition: all 0.15s; }
   .nav-btn:hover { color: var(--text); }
@@ -47,9 +57,16 @@
   .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 5px; }
   .progress-fill { height: 100%; border-radius: 2px; background: var(--green); }
   .progress-fill.over { background: #e24b4a; }
+  .phase-amt { font-size: 13px; font-weight: 600; text-align: right; }
+  .phase-bud { font-size: 13px; color: var(--text2); text-align: right; }
   .badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; display: inline-block; white-space: nowrap; }
-  .b1{background:#e6f1fb;color:#0c447c} .b2{background:#eaf3de;color:#27500a} .b3{background:#faeeda;color:#633806}
-  .b4{background:#faece7;color:#712b13} .b5{background:#eeedfe;color:#3c3489} .b6{background:#fbeaf0;color:#72243e} .b7{background:#f1efe8;color:#444441}
+  .b1 { background: #e6f1fb; color: #0c447c; }
+  .b2 { background: #eaf3de; color: #27500a; }
+  .b3 { background: #faeeda; color: #633806; }
+  .b4 { background: #faece7; color: #712b13; }
+  .b5 { background: #eeedfe; color: #3c3489; }
+  .b6 { background: #fbeaf0; color: #72243e; }
+  .b7 { background: #f1efe8; color: #444441; }
   .var-ok { background: var(--green-bg); color: var(--green); font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
   .var-over { background: var(--red-bg); color: var(--red); font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
   .exp-row { display: grid; grid-template-columns: 1fr 130px 100px 100px 34px; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
@@ -63,7 +80,6 @@
   .btn:hover { background: var(--surface2); }
   .btn-primary { background: var(--text); color: var(--surface); border-color: var(--text); }
   .btn-primary:hover { opacity: 0.82; }
-  .btn-sm { font-size: 12px; padding: 6px 12px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .form-group { display: flex; flex-direction: column; gap: 7px; }
   .form-group.full { grid-column: 1 / -1; }
@@ -75,15 +91,8 @@
   .toast.show { opacity: 1; }
   .empty { text-align: center; padding: 44px 20px; color: var(--text3); font-size: 14px; }
   .loading { text-align: center; padding: 44px 20px; color: var(--text3); font-size: 14px; }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 520px; margin: 20px; }
-  .modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
-  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
-  .project-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
-  .pb-active { background: #eaf3de; color: #27500a; }
-  .pb-completed { background: #e6f1fb; color: #0c447c; }
-  .pb-on_hold { background: #faeeda; color: #633806; }
+  .filter-bar { display: flex; gap: 8px; align-items: center; }
+  .filter-bar select { font-size: 13px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-family: inherit; }
   @media (max-width: 680px) {
     .metrics-grid { grid-template-columns: repeat(2, 1fr); }
     .form-grid { grid-template-columns: 1fr; }
@@ -92,7 +101,6 @@
     .exp-row { grid-template-columns: 1fr 90px 30px; }
     .exp-row .exp-cat, .exp-row .exp-date { display: none; }
     .main { padding: 20px 16px; }
-    .topbar-right .project-selector select { max-width: 130px; }
   }
 </style>
 </head>
@@ -101,11 +109,8 @@
 <div class="topbar">
   <div class="topbar-logo">AR-C Homes <span>/ Cost Tracker</span></div>
   <div class="topbar-right">
-    <div class="project-selector">
-      <div class="status-dot"></div>
-      <select id="project-select" onchange="switchProject()"><option>Loading...</option></select>
-    </div>
-    <button class="btn btn-sm" onclick="openNewProject()">+ New Project</button>
+    <div class="status-dot"></div>
+    <span id="project-label">Loading...</span>
   </div>
 </div>
 
@@ -115,7 +120,6 @@
   <button class="nav-btn" onclick="show('add')">+ Add Expense</button>
   <button class="nav-btn" onclick="show('budget')">Budget</button>
   <button class="nav-btn" onclick="show('reports')">Reports</button>
-  <button class="nav-btn" onclick="show('projects')">Projects</button>
 </div>
 
 <div class="main">
@@ -142,16 +146,18 @@
   <div id="s-expenses" class="section">
     <div class="section-header">
       <h2>All Expenses</h2>
-      <select id="filter-phase" onchange="renderExpenses()" style="font-size:13px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-family:inherit">
-        <option value="">All Phases</option>
-        <option value="1">Phase 1 — Land Acquisition</option>
-        <option value="2">Phase 2 — Pre-Development</option>
-        <option value="3">Phase 3 — Permits & Approvals</option>
-        <option value="4">Phase 4 — Infrastructure</option>
-        <option value="5">Phase 5 — Construction</option>
-        <option value="6">Phase 6 — Soft Costs</option>
-        <option value="7">Phase 7 — Operating Expenses</option>
-      </select>
+      <div class="filter-bar">
+        <select id="filter-phase" onchange="renderExpenses()">
+          <option value="">All Phases</option>
+          <option value="1">Phase 1 — Land Acquisition</option>
+          <option value="2">Phase 2 — Pre-Development</option>
+          <option value="3">Phase 3 — Permits & Approvals</option>
+          <option value="4">Phase 4 — Infrastructure</option>
+          <option value="5">Phase 5 — Construction</option>
+          <option value="6">Phase 6 — Soft Costs</option>
+          <option value="7">Phase 7 — Operating Expenses</option>
+        </select>
+      </div>
     </div>
     <div class="card">
       <div class="exp-row exp-head"><div>Description / Vendor</div><div class="exp-cat">Category</div><div class="exp-date">Date</div><div style="text-align:right">Amount</div><div></div></div>
@@ -161,7 +167,7 @@
 
   <!-- ADD EXPENSE -->
   <div id="s-add" class="section">
-    <div class="section-header"><h2>Log New Expense</h2><div id="add-project-label" style="font-size:13px;color:var(--text2)"></div></div>
+    <div class="section-header"><h2>Log New Expense</h2></div>
     <div class="card">
       <div class="form-grid">
         <div class="form-group full"><label>Description *</label><input type="text" id="f-desc" placeholder="e.g. Civil engineer site plan — initial payment"></div>
@@ -183,7 +189,10 @@
 
   <!-- BUDGET -->
   <div id="s-budget" class="section">
-    <div class="section-header"><h2>Budget Setup</h2><button class="btn btn-primary" onclick="saveBudget()">Save Budget</button></div>
+    <div class="section-header">
+      <h2>Budget Setup</h2>
+      <button class="btn btn-primary" onclick="saveBudget()">Save Budget</button>
+    </div>
     <div class="card">
       <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Set estimated budget per phase to compare against actual spending.</p>
       <div id="budget-inputs"><div class="loading">Loading...</div></div>
@@ -211,50 +220,22 @@
     </div>
   </div>
 
-  <!-- PROJECTS -->
-  <div id="s-projects" class="section">
-    <div class="section-header"><h2>All Projects</h2><button class="btn btn-primary" onclick="openNewProject()">+ New Project</button></div>
-    <div id="projects-list"><div class="loading">Loading...</div></div>
-  </div>
-
-</div>
-
-<!-- NEW PROJECT MODAL -->
-<div class="modal-overlay" id="modal-project">
-  <div class="modal">
-    <h3>New Project</h3>
-    <div class="form-grid">
-      <div class="form-group full"><label>Project Name *</label><input type="text" id="np-name" placeholder="e.g. Maple Ridge Estates"></div>
-      <div class="form-group"><label>Location / City *</label><input type="text" id="np-location" placeholder="e.g. Greensboro"></div>
-      <div class="form-group"><label>State *</label><input type="text" id="np-state" placeholder="NC" maxlength="2" style="text-transform:uppercase"></div>
-      <div class="form-group"><label>Total Lots</label><input type="number" id="np-lots" placeholder="e.g. 24" min="0"></div>
-      <div class="form-group"><label>Total Acres</label><input type="number" id="np-acres" placeholder="e.g. 12.5" step="0.1" min="0"></div>
-      <div class="form-group"><label>Project Type</label><select id="np-type"><option value="residential">Residential</option><option value="lots">Lots Only</option><option value="mixed">Mixed</option><option value="commercial">Commercial</option></select></div>
-      <div class="form-group"><label>Exit Strategy</label><select id="np-exit"><option value="undecided">Undecided</option><option value="build_and_sell">Build & Sell</option><option value="sell_lots">Sell Lots</option></select></div>
-      <div class="form-group"><label>Start Date</label><input type="date" id="np-start"></div>
-      <div class="form-group full"><label>Notes</label><textarea id="np-notes" placeholder="Any notes about this project..." style="min-height:60px"></textarea></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="createProject()">Create Project</button>
-    </div>
-  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPA_URL = 'https://xvegcjulcrdnkjfwssrf.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZWdjanVsY3JkbmtqZndzc3JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMDIwOTUsImV4cCI6MjA4ODc3ODA5NX0.GeNIgLN3KJucO9byGPIUZ5jXj8V66ohWIukw9tJ8TK8';
+const URL = 'https://xvegcjulcrdnkjfwssrf.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZWdjanVsY3JkbmtqZndzc3JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMDIwOTUsImV4cCI6MjA4ODc3ODA5NX0.GeNIgLN3KJucO9byGPIUZ5jXj8V66ohWIukw9tJ8TK8';
 const PHASE_NAMES = ['Land Acquisition','Pre-Development','Permits & Approvals','Infrastructure','Construction','Soft Costs','Operating Expenses'];
 
-let projects=[], projectId=null, project=null, categories=[], expenses=[], budgets=[];
+let projectId, project, categories=[], expenses=[], budgets=[];
 
 const fmt = v => '$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
 
 async function api(path, opts={}) {
-  const r = await fetch(SUPA_URL+'/rest/v1/'+path, {
-    headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json',Prefer:'return=representation',...(opts.headers||{})},
+  const r = await fetch(URL+'/rest/v1/'+path, {
+    headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation',...(opts.headers||{})},
     ...opts
   });
   if(!r.ok) throw new Error(await r.text());
@@ -263,46 +244,23 @@ async function api(path, opts={}) {
 
 async function init() {
   try {
-    projects = await api('arc_homes.projects?select=*&order=created_at.desc');
+    const ps = await api('arc_homes.projects?select=*&status=eq.active&limit=1');
+    project = ps[0]; projectId = project.id;
+    document.getElementById('project-label').textContent = project.name+' — '+project.location+', '+project.state;
+    document.title = project.name+' — AR-C Homes';
     categories = await api('arc_homes.expense_categories?select=*&is_active=eq.true&order=phase_number.asc,subcategory.asc');
-
-    // populate category select
     const sel = document.getElementById('f-cat');
-    sel.innerHTML = '<option value="">Select category...</option>';
     let lp=0;
     categories.forEach(c=>{
       if(c.phase_number!==lp){const g=document.createElement('optgroup');g.label='Phase '+c.phase_number+' — '+PHASE_NAMES[c.phase_number-1];sel.appendChild(g);lp=c.phase_number;}
       const o=document.createElement('option');o.value=c.id;o.textContent=c.subcategory;sel.appendChild(o);
     });
-
-    // populate project dropdown
-    buildProjectDropdown();
-
-    // select first active project
-    const active = projects.find(p=>p.status==='active') || projects[0];
-    if(active){ projectId=active.id; project=active; document.getElementById('project-select').value=active.id; }
-
     document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
     await reload();
-    renderProjectsList();
-  } catch(e){ toast('Connection error: '+e.message); console.error(e); }
-}
-
-function buildProjectDropdown() {
-  const sel = document.getElementById('project-select');
-  sel.innerHTML = projects.map(p=>`<option value="${p.id}">${p.name} — ${p.location}, ${p.state}</option>`).join('');
-}
-
-async function switchProject() {
-  const sel = document.getElementById('project-select');
-  projectId = sel.value;
-  project = projects.find(p=>p.id===projectId);
-  await reload();
+  } catch(e){ toast('Connection error: '+e.message); }
 }
 
 async function reload() {
-  if(!projectId) return;
-  document.getElementById('add-project-label').textContent = 'Project: '+(project?.name||'');
   expenses = await api('arc_homes.expenses?select=*&project_id=eq.'+projectId+'&order=expense_date.desc');
   budgets = await api('arc_homes.budget_items?select=*&project_id=eq.'+projectId);
   renderDash(); renderExpenses(); renderBudgetInputs(); renderReports();
@@ -318,7 +276,7 @@ function renderDash() {
   const rem=bud-total; const pct=bud>0?Math.round(total/bud*100):0;
   document.getElementById('m-spent').textContent=fmt(total);
   document.getElementById('m-budget').textContent=fmt(bud);
-  document.getElementById('m-pct').textContent=bud>0?pct+'% of budget used':'No budget set yet';
+  document.getElementById('m-pct').textContent=bud>0?pct+'% of budget used':'No budget set';
   document.getElementById('m-remain').textContent=fmt(Math.abs(rem));
   document.getElementById('m-remain').style.color=rem<0?'#e24b4a':'inherit';
   document.getElementById('m-rem-lbl').textContent=rem<0?'OVER budget':'under budget';
@@ -327,13 +285,13 @@ function renderDash() {
   [1,2,3,4,5,6,7].forEach((p,i)=>{
     const s=phaseSpent(p),b=phaseBudget(p);
     if(!s&&!b)return;
-    const pct2=b>0?Math.min(Math.round(s/b*100),100):0;
+    const pct=b>0?Math.min(Math.round(s/b*100),100):0;
     const over=b>0&&s>b;
-    ph+=`<div class="phase-row"><div class="phase-num">${p}</div><div><div class="phase-name">${PHASE_NAMES[i]}</div><div class="progress-bar"><div class="progress-fill${over?' over':''}" style="width:${pct2}%"></div></div></div><div class="phase-amt" style="font-size:13px;font-weight:600;text-align:right">${fmt(s)}</div><div class="phase-bud" style="font-size:13px;color:var(--text2);text-align:right">${b>0?fmt(b):'—'}</div><div class="phase-var">${b>0?(over?'<span class="var-over">Over</span>':'<span class="var-ok">OK</span>'):''}</div></div>`;
+    ph+=`<div class="phase-row"><div class="phase-num">${p}</div><div><div class="phase-name">${PHASE_NAMES[i]}</div><div class="progress-bar"><div class="progress-fill${over?' over':''}" style="width:${pct}%"></div></div></div><div class="phase-amt">${fmt(s)}</div><div class="phase-bud">${b>0?fmt(b):'—'}</div><div class="phase-var">${b>0?(over?'<span class="var-over">Over</span>':'<span class="var-ok">OK</span>'):''}</div></div>`;
   });
   document.getElementById('dash-phases').innerHTML=ph||'<div class="empty">Add expenses or set a budget to see phases.</div>';
   const recent=expenses.slice(0,5);
-  document.getElementById('dash-recent').innerHTML=recent.length?'<div class="exp-row exp-head"><div>Description</div><div class="exp-cat">Category</div><div class="exp-date">Date</div><div style="text-align:right">Amount</div><div></div></div>'+recent.map(expRow).join(''):'<div class="empty">No expenses yet. Click "+ Add Expense" to get started.</div>';
+  document.getElementById('dash-recent').innerHTML=recent.length?'<div class="exp-row exp-head"><div>Description</div><div class="exp-cat">Category</div><div class="exp-date">Date</div><div style="text-align:right">Amount</div><div></div></div>'+recent.map(expRow).join(''):'<div class="empty">No expenses yet.</div>';
 }
 
 function expRow(e){
@@ -348,7 +306,8 @@ function renderExpenses(){
 }
 
 function renderBudgetInputs(){
-  document.getElementById('budget-inputs').innerHTML=[1,2,3,4,5,6,7].map((p,i)=>{
+  const ph=[1,2,3,4,5,6,7];
+  document.getElementById('budget-inputs').innerHTML=ph.map((p,i)=>{
     const b=phaseBudget(p);
     return `<div style="display:grid;grid-template-columns:30px 1fr 170px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)"><div class="phase-num">${p}</div><div><div style="font-size:13px;font-weight:600">${PHASE_NAMES[i]}</div></div><input type="number" data-phase="${p}" value="${b||''}" placeholder="0.00" step="100" min="0" style="font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text);font-family:inherit;text-align:right"></div>`;
   }).join('')+'<div style="height:6px"></div>';
@@ -365,42 +324,18 @@ function renderReports(){
   document.getElementById('r-var').textContent=vr!==null?fmt(Math.abs(vr)):'—';
   document.getElementById('r-var').style.color=vr>0?'#e24b4a':'inherit';
   document.getElementById('r-var-lbl').textContent=vr>0?'over budget':vr<0?'under budget':'on track';
-  let biggest={name:'—',amt:0}; let rph='';
+  let biggest={name:'—',amt:0};
+  let rph='';
   [1,2,3,4,5,6,7].forEach((p,i)=>{
     const s=phaseSpent(p),b=phaseBudget(p);
     if(!s&&!b)return;
     if(s>biggest.amt)biggest={name:PHASE_NAMES[i],amt:s};
-    const v=b>0?s-b:null;
-    rph+=`<div class="phase-row"><div class="phase-num">${p}</div><div><div class="phase-name">${PHASE_NAMES[i]}</div><div class="phase-sub">${total>0?Math.round(s/total*100):0}% of total</div></div><div style="font-size:13px;font-weight:600;text-align:right">${fmt(s)}</div><div style="font-size:13px;color:var(--text2);text-align:right">${b>0?fmt(b):'—'}</div><div>${v!==null?(v>0?'<span class="var-over">+'+fmt(v)+'</span>':'<span class="var-ok">-'+fmt(Math.abs(v))+'</span>'):''}</div></div>`;
+    const vr=b>0?s-b:null;
+    rph+=`<div class="phase-row"><div class="phase-num">${p}</div><div><div class="phase-name">${PHASE_NAMES[i]}</div><div class="phase-sub">${total>0?Math.round(s/total*100):0}% of total</div></div><div class="phase-amt">${fmt(s)}</div><div class="phase-bud">${b>0?fmt(b):'—'}</div><div>${vr!==null?(vr>0?'<span class="var-over">+'+fmt(vr)+'</span>':'<span class="var-ok">-'+fmt(Math.abs(vr))+'</span>'):''}</div></div>`;
   });
   document.getElementById('report-phases').innerHTML=rph||'<div class="empty">No data yet.</div>';
   document.getElementById('r-phase').textContent=biggest.name;
   document.getElementById('r-phase-amt').textContent=fmt(biggest.amt);
-}
-
-function renderProjectsList(){
-  if(!projects.length){document.getElementById('projects-list').innerHTML='<div class="empty">No projects yet.</div>';return;}
-  document.getElementById('projects-list').innerHTML=projects.map(p=>`
-    <div class="card" style="margin-bottom:12px;cursor:pointer" onclick="selectAndView('${p.id}')">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-size:16px;font-weight:700;margin-bottom:4px">${p.name}</div>
-          <div style="font-size:13px;color:var(--text2)">${p.location}, ${p.state}</div>
-          ${p.total_lots?`<div style="font-size:12px;color:var(--text3);margin-top:4px">${p.total_lots} lots${p.total_acres?' · '+p.total_acres+' acres':''}</div>`:''}
-          ${p.notes?`<div style="font-size:12px;color:var(--text3);margin-top:6px">${p.notes}</div>`:''}
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
-          <span class="project-badge pb-${p.status}">${p.status.replace('_',' ')}</span>
-          <span style="font-size:12px;color:var(--text3)">${p.exit_strategy?.replace('_',' ')||''}</span>
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-function selectAndView(id){
-  projectId=id; project=projects.find(p=>p.id===id);
-  document.getElementById('project-select').value=id;
-  reload(); show('dashboard');
 }
 
 async function saveExpense(){
@@ -433,44 +368,10 @@ async function saveBudget(){
     try{
       if(existing)await api('arc_homes.budget_items?id=eq.'+existing.id,{method:'PATCH',body:JSON.stringify({estimated_amount:amt})});
       else await api('arc_homes.budget_items',{method:'POST',body:JSON.stringify({project_id:projectId,category_id:ids[0],estimated_amount:amt})});
-    }catch(e){toast('Error saving budget: '+e.message);return;}
+    }catch(e){toast('Error: '+e.message);return;}
   }
   await reload(); toast('Budget saved!');
 }
-
-async function createProject(){
-  const name=document.getElementById('np-name').value.trim();
-  const location=document.getElementById('np-location').value.trim();
-  const state=document.getElementById('np-state').value.trim().toUpperCase();
-  if(!name||!location||!state){toast('Name, location and state are required');return;}
-  const payload={
-    name, location, state,
-    total_lots:parseInt(document.getElementById('np-lots').value)||null,
-    total_acres:parseFloat(document.getElementById('np-acres').value)||null,
-    project_type:document.getElementById('np-type').value,
-    exit_strategy:document.getElementById('np-exit').value,
-    start_date:document.getElementById('np-start').value||null,
-    notes:document.getElementById('np-notes').value.trim()||null,
-    status:'active'
-  };
-  try{
-    const res=await api('arc_homes.projects',{method:'POST',body:JSON.stringify(payload)});
-    const newP=Array.isArray(res)?res[0]:res;
-    projects.unshift(newP);
-    buildProjectDropdown();
-    projectId=newP.id; project=newP;
-    document.getElementById('project-select').value=newP.id;
-    await reload();
-    renderProjectsList();
-    closeModal();
-    toast('Project "'+name+'" created!');
-    show('dashboard');
-  }catch(e){toast('Error: '+e.message);}
-}
-
-function openNewProject(){document.getElementById('modal-project').classList.add('open');}
-function closeModal(){document.getElementById('modal-project').classList.remove('open');}
-document.getElementById('modal-project').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 function clearForm(){
   ['f-desc','f-vendor','f-amount','f-ref','f-notes'].forEach(id=>document.getElementById(id).value='');
@@ -484,14 +385,14 @@ function exportCSV(){
   if(!expenses.length){toast('No expenses to export');return;}
   const h='Date,Description,Vendor,Phase,Category,Amount,Payment Method,Reference,Tax Deductible,Notes';
   const rows=expenses.map(e=>{const c=cat(e.category_id);return[e.expense_date,e.description,e.vendor||'','Phase '+c.phase_number,c.subcategory||'',e.amount,e.payment_method||'',e.check_number||'',e.tax_deductible?'Yes':'No',e.notes||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');});
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h,...rows].join('\n'));a.download=(project?.name||'project').toLowerCase().replace(/\s+/g,'-')+'-expenses.csv';a.click();toast('CSV exported');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h,...rows].join('\n'));a.download='quarry-overlook-expenses.csv';a.click();toast('CSV exported');
 }
 
 function show(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('s-'+id).classList.add('active');
-  const idx=['dashboard','expenses','add','budget','reports','projects'].indexOf(id);
+  const idx=['dashboard','expenses','add','budget','reports'].indexOf(id);
   document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
   window.scrollTo(0,0);
 }

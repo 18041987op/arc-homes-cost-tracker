@@ -263,8 +263,8 @@ async function api(path, opts={}) {
 
 async function init() {
   try {
-    projects = await api('arc_homes.projects?select=*&order=created_at.desc');
-    categories = await api('arc_homes.expense_categories?select=*&is_active=eq.true&order=phase_number.asc,subcategory.asc');
+    projects = await api('arc_projects?select=*&order=created_at.desc');
+    categories = await api('arc_expense_categories?select=*&is_active=eq.true&order=phase_number.asc,subcategory.asc');
 
     // populate category select
     const sel = document.getElementById('f-cat');
@@ -303,8 +303,8 @@ async function switchProject() {
 async function reload() {
   if(!projectId) return;
   document.getElementById('add-project-label').textContent = 'Project: '+(project?.name||'');
-  expenses = await api('arc_homes.expenses?select=*&project_id=eq.'+projectId+'&order=expense_date.desc');
-  budgets = await api('arc_homes.budget_items?select=*&project_id=eq.'+projectId);
+  expenses = await api('arc_expenses?select=*&project_id=eq.'+projectId+'&order=expense_date.desc');
+  budgets = await api('arc_budget_items?select=*&project_id=eq.'+projectId);
   renderDash(); renderExpenses(); renderBudgetInputs(); renderReports();
 }
 
@@ -410,14 +410,14 @@ async function saveExpense(){
   const dt=document.getElementById('f-date').value;
   if(!desc||!catId||!amt||!dt){toast('Fill in required fields (*)');return;}
   try{
-    await api('arc_homes.expenses',{method:'POST',body:JSON.stringify({project_id:projectId,category_id:catId,description:desc,vendor:document.getElementById('f-vendor').value.trim()||null,amount:amt,expense_date:dt,payment_method:document.getElementById('f-method').value||null,check_number:document.getElementById('f-ref').value.trim()||null,notes:document.getElementById('f-notes').value.trim()||null,tax_deductible:document.getElementById('f-tax').value==='true'})});
+    await api('arc_expenses',{method:'POST',body:JSON.stringify({project_id:projectId,category_id:catId,description:desc,vendor:document.getElementById('f-vendor').value.trim()||null,amount:amt,expense_date:dt,payment_method:document.getElementById('f-method').value||null,check_number:document.getElementById('f-ref').value.trim()||null,notes:document.getElementById('f-notes').value.trim()||null,tax_deductible:document.getElementById('f-tax').value==='true'})});
     clearForm(); await reload(); toast('Expense saved!'); show('expenses');
   }catch(e){toast('Error: '+e.message);}
 }
 
 async function delExp(id){
   if(!confirm('Delete this expense?'))return;
-  try{await api('arc_homes.expenses?id=eq.'+id,{method:'DELETE',headers:{Prefer:''}});await reload();toast('Deleted');}
+  try{await api('arc_expenses?id=eq.'+id,{method:'DELETE',headers:{Prefer:''}});await reload();toast('Deleted');}
   catch(e){toast('Error: '+e.message);}
 }
 
@@ -431,8 +431,8 @@ async function saveBudget(){
     if(!ids.length)continue;
     const existing=budgets.find(b=>ids.includes(b.category_id));
     try{
-      if(existing)await api('arc_homes.budget_items?id=eq.'+existing.id,{method:'PATCH',body:JSON.stringify({estimated_amount:amt})});
-      else await api('arc_homes.budget_items',{method:'POST',body:JSON.stringify({project_id:projectId,category_id:ids[0],estimated_amount:amt})});
+      if(existing)await api('arc_budget_items?id=eq.'+existing.id,{method:'PATCH',body:JSON.stringify({estimated_amount:amt})});
+      else await api('arc_budget_items',{method:'POST',body:JSON.stringify({project_id:projectId,category_id:ids[0],estimated_amount:amt})});
     }catch(e){toast('Error saving budget: '+e.message);return;}
   }
   await reload(); toast('Budget saved!');
@@ -454,7 +454,7 @@ async function createProject(){
     status:'active'
   };
   try{
-    const res=await api('arc_homes.projects',{method:'POST',body:JSON.stringify(payload)});
+    const res=await api('arc_projects',{method:'POST',body:JSON.stringify(payload)});
     const newP=Array.isArray(res)?res[0]:res;
     projects.unshift(newP);
     buildProjectDropdown();
